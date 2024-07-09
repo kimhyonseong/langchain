@@ -1,4 +1,5 @@
 from langchain.chat_models import ChatOpenAI
+from langchain.output_parsers import OutputFixingParser
 from langchain.output_parsers import PydanticOutputParser
 from langchain.schema import HumanMessage
 from pydantic import BaseModel, Field, model_validator
@@ -18,7 +19,10 @@ class Smartphone(BaseModel):
             raise ValueError("Screen inches  must be a positive number")
         return values
     
-parser = PydanticOutputParser(pydantic_object=Smartphone)
+parser = OutputFixingParser.from_llm(
+    parser=PydanticOutputParser(pydantic_object=Smartphone),
+    llm=chat
+)
 
 result = chat([
     HumanMessage(content="안드로이드 스마트폰 1개를 꼽아주세요."),
